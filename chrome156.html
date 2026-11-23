@@ -40,7 +40,7 @@ li b.y{color:var(--ok)}li b.n{color:var(--no)}
   const tests = [
     ['CSS random()',                 () => sup('width', 'random(10px, 100px)')],
     [':navigation-source selector',  () => sel(':navigation-source')],
-    ['overflow: scroll clip',        () => sup('overflow', 'scroll clip')]
+    ['scroll-snap-type: pair',       () => ['both pair', 'both mandatory pair', 'both proximity pair', 'pair'].some(v => sup('scroll-snap-type', v))]
   ];
 
   const list = document.getElementById('list');

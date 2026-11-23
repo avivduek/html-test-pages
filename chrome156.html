@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chrome 156 feature check</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#1b1f24;--muted:#5d6670;--ok:#137a3a;--okbg:#dff5e7;--no:#b42318;--nobg:#fde4e1;--mid:#8a5a00;--midbg:#fff0cc;--card:#fff;--bd:#d9dde2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171a;--fg:#eef0f2;--muted:#9aa4ae;--ok:#6fdc97;--okbg:#10301d;--no:#ff8d82;--nobg:#3a1612;--mid:#f2c14e;--midbg:#3a2d0c;--card:#1c2024;--bd:#2d333a}}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:grid;place-items:center;min-height:100vh;padding:24px}
+main{width:100%;max-width:600px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:28px}
+h1{font-size:1.1rem;margin:0 0 4px}
+p{margin:0;color:var(--muted);font-size:.9rem}
+#status{margin:22px 0;padding:22px;border-radius:12px;text-align:center;font-size:1.5rem;font-weight:700;background:var(--bd)}
+#status.ok{background:var(--okbg);color:var(--ok)}
+#status.no{background:var(--nobg);color:var(--no)}
+#status.mid{background:var(--midbg);color:var(--mid)}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--bd);font-size:.92rem}
+li code{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word}
+li b.y{color:var(--ok)}li b.n{color:var(--no)}
+#ua{margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Chrome 156 feature check</h1>
+  <p>Features that shipped in Chromium 156 and are absent from 144.</p>
+  <div id="status">Checking…</div>
+  <ul id="list"></ul>
+  <p id="ua"></p>
+</main>
+<script>
+(function () {
+  const sup = (p, v) => { try { return CSS.supports(p, v); } catch (e) { return false; } };
+  const sel = s => { try { return CSS.supports('selector(' + s + ')'); } catch (e) { return false; } };
+
+  const tests = [
+    ['CSS random()',                 () => sup('width', 'random(10px, 100px)')],
+    [':navigation-source selector',  () => sel(':navigation-source')],
+    ['overflow: scroll clip',        () => sup('overflow', 'scroll clip')]
+  ];
+
+  const list = document.getElementById('list');
+  let pass = 0;
+  tests.forEach(([name, fn]) => {
+    let ok = false;
+    try { ok = !!fn(); } catch (e) {}
+    if (ok) pass++;
+    const li = document.createElement('li');
+    li.innerHTML = '<code></code><b class="' + (ok ? 'y' : 'n') + '">' + (ok ? '✅ supported' : '❌ not supported') + '</b>';
+    li.firstChild.textContent = name;
+    list.appendChild(li);
+  });
+
+  const s = document.getElementById('status');
+  if (pass === tests.length) { s.textContent = '✅ Supported in this version'; s.className = 'ok'; }
+  else if (pass === 0)       { s.textContent = '❌ Not supported in this version'; s.className = 'no'; }
+  else                       { s.textContent = '⚠️ Partially supported (' + pass + '/' + tests.length + ')'; s.className = 'mid'; }
+
+  const m = navigator.userAgent.match(/Chrom(?:e|ium)\/(\d+)/);
+  document.getElementById('ua').textContent = 'Detected: ' + (m ? 'Chromium ' + m[1] : navigator.userAgent);
+})();
+</script>
+</body>
+</html>
